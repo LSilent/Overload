@@ -12,6 +12,7 @@
 #include "OvCore/ECS/Components/CPhysicalSphere.h"
 #include "OvCore/ECS/Components/CPhysicalCapsule.h"
 #include "OvCore/ECS/Components/CCamera.h"
+#include "OvCore/ECS/Components/CSpriteRenderer.h"
 #include "OvCore/ECS/Components/CModelRenderer.h"
 #include "OvCore/ECS/Components/CMaterialRenderer.h"
 #include "OvCore/ECS/Components/CAudioSource.h"
@@ -449,11 +450,12 @@ void OvCore::ECS::Actor::OnDeserialize(tinyxml2::XMLDocument & p_doc, tinyxml2::
 				OvCore::ECS::Components::AComponent* component = nullptr;
 
 				// TODO: Use component name instead of typeid (unsafe)
-				if (componentType == typeid(Components::CTransform).name())			component = &transform;
+				if (componentType == typeid(Components::CTransform).name())					component = &transform;
 				else if (componentType == typeid(Components::CPhysicalBox).name())			component = &AddComponent<OvCore::ECS::Components::CPhysicalBox>();
 				else if (componentType == typeid(Components::CPhysicalSphere).name())		component = &AddComponent<OvCore::ECS::Components::CPhysicalSphere>();
 				else if (componentType == typeid(Components::CPhysicalCapsule).name())		component = &AddComponent<OvCore::ECS::Components::CPhysicalCapsule>();
-				else if (componentType == typeid(Components::CModelRenderer).name())			component = &AddComponent<OvCore::ECS::Components::CModelRenderer>();
+				else if (componentType == typeid(Components::CSpriteRenderer).name())		component = &AddComponent<OvCore::ECS::Components::CSpriteRenderer>();
+				else if (componentType == typeid(Components::CModelRenderer).name())		component = &AddComponent<OvCore::ECS::Components::CModelRenderer>();
 				else if (componentType == typeid(Components::CCamera).name())				component = &AddComponent<OvCore::ECS::Components::CCamera>();
 				else if (componentType == typeid(Components::CMaterialRenderer).name())		component = &AddComponent<OvCore::ECS::Components::CMaterialRenderer>();
 				else if (componentType == typeid(Components::CAudioSource).name())			component = &AddComponent<OvCore::ECS::Components::CAudioSource>();

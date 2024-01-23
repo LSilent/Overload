@@ -15,6 +15,7 @@
 
 #include "OvCore/ECS/Actor.h"
 #include "OvCore/ECS/Components/CMaterialRenderer.h"
+#include "OvCore/ECS/Components/CSpriteRenderer.h"
 #include "OvCore/ECS/Components/CModelRenderer.h"
 #include "OvCore/ResourceManagement/MaterialManager.h"
 #include "OvCore/Global/ServiceLocator.h"
@@ -86,12 +87,26 @@ void OvCore::ECS::Components::CMaterialRenderer::OnSerialize(tinyxml2::XMLDocume
 	tinyxml2::XMLNode* materialsNode = p_doc.NewElement("materials");
 	p_node->InsertEndChild(materialsNode);
 
-	auto modelRenderer = owner.GetComponent<CModelRenderer>();
-	uint8_t elementsToSerialize = modelRenderer->GetModel() ? (uint8_t)std::min(modelRenderer->GetModel()->GetMaterialNames().size(), (size_t)MAX_MATERIAL_COUNT) : 0;
-
-	for (uint8_t i = 0; i < elementsToSerialize; ++i)
+	auto spriteRenderer = owner.GetComponent<CSpriteRenderer>();
+	if (spriteRenderer)
 	{
-		OvCore::Helpers::Serializer::SerializeMaterial(p_doc, materialsNode, "material", m_materials[i]);
+		uint8_t elementsToSerialize = spriteRenderer->GetSprite() ? (uint8_t)std::min(spriteRenderer->GetSprite()->GetMaterialNames().size(), (size_t)MAX_MATERIAL_COUNT) : 0;
+		for (uint8_t i = 0; i < elementsToSerialize; ++i)
+		{
+			OvCore::Helpers::Serializer::SerializeMaterial(p_doc, materialsNode, "material", m_materials[i]);
+		}
+	}
+
+
+	auto modelRenderer = owner.GetComponent<CModelRenderer>();
+	if (modelRenderer)
+	{
+		uint8_t elementsToSerialize = modelRenderer->GetModel() ? (uint8_t)std::min(modelRenderer->GetModel()->GetMaterialNames().size(), (size_t)MAX_MATERIAL_COUNT) : 0;
+
+		for (uint8_t i = 0; i < elementsToSerialize; ++i)
+		{
+			OvCore::Helpers::Serializer::SerializeMaterial(p_doc, materialsNode, "material", m_materials[i]);
+		}
 	}
 }
 
@@ -171,6 +186,19 @@ void OvCore::ECS::Components::CMaterialRenderer::OnInspector(OvUI::Internal::Wid
 
 void OvCore::ECS::Components::CMaterialRenderer::UpdateMaterialList()
 {
+	if (auto spriteRenderer = owner.GetComponent<CSpriteRenderer>(); spriteRenderer && spriteRenderer->GetSprite())
+	{
+		uint8_t materialIndex = 0;
+
+		for (const std::string& materialName : spriteRenderer->GetSprite()->GetMaterialNames())
+		{
+			m_materialNames[materialIndex++] = materialName;
+		}
+
+		for (uint8_t i = materialIndex; i < MAX_MATERIAL_COUNT; ++i)
+			m_materialNames[i] = "";
+	}
+
 	if (auto modelRenderer = owner.GetComponent<CModelRenderer>(); modelRenderer && modelRenderer->GetModel())
 	{
 		uint8_t materialIndex = 0;

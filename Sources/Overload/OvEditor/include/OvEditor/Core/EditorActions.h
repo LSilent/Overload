@@ -181,6 +181,16 @@ namespace OvEditor::Core
 		OvCore::ECS::Actor&	CreateActorWithModel(const std::string& p_path, bool p_focusOnCreation = true, OvCore::ECS::Actor* p_parent = nullptr, const std::string& p_name = "");
 
 		/**
+		* Create an sprite with a sprite renderer and a material renderer. The sprite renderer with use the sprite identified
+		* by the given path
+		* @param p_path
+		* @param p_focusOnCreation
+		* @param p_parent
+		* @param p_name
+		*/
+		OvCore::ECS::Actor& CreateActorWithSprite(const std::string& p_path, bool p_focusOnCreation = true, OvCore::ECS::Actor* p_parent = nullptr, const std::string& p_name = "");
+
+		/**
 		* Destroy an actor from his scene
 		* @param p_focusOnCreation
 		* @param p_parent

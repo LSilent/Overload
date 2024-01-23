@@ -11,6 +11,7 @@
 #include "OvRendering/Context/Driver.h"
 #include "OvRendering/LowRenderer/Camera.h"
 #include "OvRendering/Resources/Shader.h"
+#include "OvRendering/Resources/Sprite.h"
 #include "OvRendering/Resources/Model.h"
 #include "OvRendering/Settings/ERenderingCapability.h"
 #include "OvRendering/Settings/EPrimitiveMode.h"
@@ -272,6 +273,23 @@ namespace OvRendering::Core
 		* @param p_instances
 		*/
 		void Draw(Resources::IMesh& p_mesh, Settings::EPrimitiveMode p_primitiveMode = Settings::EPrimitiveMode::TRIANGLES, uint32_t p_instances = 1);
+
+		/**
+		* Returns the list of meshes from a sprite that should be rendered
+		* @param p_sprite
+		* @param p_spriteBoundingSphere
+		* @param p_spriteTransform
+		* @param p_frustum
+		* @param p_cullingOptions
+		*/
+		std::vector<std::reference_wrapper<OvRendering::Resources::Mesh>> GetMeshesInFrustum
+		(
+			const OvRendering::Resources::Sprite& p_sprite,
+			const OvRendering::Geometry::BoundingSphere& p_spriteBoundingSphere,
+			const OvMaths::FTransform& p_spriteTransform,
+			const OvRendering::Data::Frustum& p_frustum,
+			OvRendering::Settings::ECullingOptions p_cullingOptions
+		);
 
 		/**
 		* Returns the list of meshes from a model that should be rendered

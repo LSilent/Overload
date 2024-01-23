@@ -46,6 +46,11 @@ std::function<void()> ActorWithModelComponentCreationHandler(OvCore::ECS::Actor*
     return Combine(EDITOR_BIND(CreateActorWithModel, ":Models\\" + p_modelName + ".fbx", true, p_parent, p_modelName), p_onItemClicked);
 }
 
+std::function<void()> ActorWithSpriteComponentCreationHandler(OvCore::ECS::Actor* p_parent, const std::string& p_typeName, std::optional<std::function<void()>> p_onItemClicked)
+{
+    return Combine(EDITOR_BIND(CreateActorWithSprite, ":Sprites\\" + p_typeName + ".png", true, p_parent, "Sprite"), p_onItemClicked);
+}
+
 void OvEditor::Utils::ActorCreationMenu::GenerateActorCreationMenu(OvUI::Widgets::Menu::MenuList& p_menuList, OvCore::ECS::Actor* p_parent, std::optional<std::function<void()>> p_onItemClicked)
 {
     using namespace OvUI::Widgets::Menu;
@@ -54,21 +59,25 @@ void OvEditor::Utils::ActorCreationMenu::GenerateActorCreationMenu(OvUI::Widgets
     p_menuList.CreateWidget<MenuItem>("Create Empty").ClickedEvent += Combine(EDITOR_BIND(CreateEmptyActor, true, p_parent, ""), p_onItemClicked);
 
     auto& primitives = p_menuList.CreateWidget<MenuList>("Primitives");
+    auto& object2Ds = primitives.CreateWidget<MenuList>("2D Objects");
+    auto& object3Ds = primitives.CreateWidget<MenuList>("3D Objects");
+
     auto& physicals = p_menuList.CreateWidget<MenuList>("Physicals");
     auto& lights = p_menuList.CreateWidget<MenuList>("Lights");
     auto& audio = p_menuList.CreateWidget<MenuList>("Audio");
     auto& others = p_menuList.CreateWidget<MenuList>("Others");
 
-    primitives.CreateWidget<MenuItem>("Cube").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Cube", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Sphere").ClickedEvent            += ActorWithModelComponentCreationHandler(p_parent, "Sphere", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Cone").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Cone", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Cylinder").ClickedEvent          += ActorWithModelComponentCreationHandler(p_parent, "Cylinder", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Plane").ClickedEvent             += ActorWithModelComponentCreationHandler(p_parent, "Plane", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Gear").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Gear", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Helix").ClickedEvent             += ActorWithModelComponentCreationHandler(p_parent, "Helix", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Pipe").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Pipe", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Pyramid").ClickedEvent           += ActorWithModelComponentCreationHandler(p_parent, "Pyramid", p_onItemClicked);
-    primitives.CreateWidget<MenuItem>("Torus").ClickedEvent             += ActorWithModelComponentCreationHandler(p_parent, "Torus", p_onItemClicked);
+    object2Ds.CreateWidget<MenuItem>("Sprite").ClickedEvent             += ActorWithSpriteComponentCreationHandler(p_parent, "Square", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Cube").ClickedEvent               += ActorWithModelComponentCreationHandler(p_parent, "Cube", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Sphere").ClickedEvent             += ActorWithModelComponentCreationHandler(p_parent, "Sphere", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Cone").ClickedEvent               += ActorWithModelComponentCreationHandler(p_parent, "Cone", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Cylinder").ClickedEvent           += ActorWithModelComponentCreationHandler(p_parent, "Cylinder", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Plane").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Plane", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Gear").ClickedEvent               += ActorWithModelComponentCreationHandler(p_parent, "Gear", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Helix").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Helix", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Pipe").ClickedEvent               += ActorWithModelComponentCreationHandler(p_parent, "Pipe", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Pyramid").ClickedEvent            += ActorWithModelComponentCreationHandler(p_parent, "Pyramid", p_onItemClicked);
+    object3Ds.CreateWidget<MenuItem>("Torus").ClickedEvent              += ActorWithModelComponentCreationHandler(p_parent, "Torus", p_onItemClicked);
     physicals.CreateWidget<MenuItem>("Physical Box").ClickedEvent       += ActorWithComponentCreationHandler<CPhysicalBox>(p_parent, p_onItemClicked);
     physicals.CreateWidget<MenuItem>("Physical Sphere").ClickedEvent    += ActorWithComponentCreationHandler<CPhysicalSphere>(p_parent, p_onItemClicked);
     physicals.CreateWidget<MenuItem>("Physical Capsule").ClickedEvent   += ActorWithComponentCreationHandler<CPhysicalCapsule>(p_parent, p_onItemClicked);

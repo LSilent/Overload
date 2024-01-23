@@ -4,6 +4,7 @@
 * @licence: MIT
 */
 
+#include "OvCore/ResourceManagement/SpriteManager.h"
 #include "OvCore/ResourceManagement/TextureManager.h"
 #include "OvCore/ResourceManagement/ModelManager.h"
 #include "OvCore/ResourceManagement/ShaderManager.h"
@@ -159,6 +160,11 @@ void OvCore::Helpers::Serializer::SerializeColor(tinyxml2::XMLDocument & p_doc, 
 	element->InsertEndChild(a);
 }
 
+void OvCore::Helpers::Serializer::SerializeSprite(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node, const std::string& p_name, OvRendering::Resources::Sprite* p_value)
+{
+	SerializeString(p_doc, p_node, p_name.c_str(), p_value ? p_value->path : "?");
+}
+
 void OvCore::Helpers::Serializer::SerializeModel(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode * p_node, const std::string & p_name, OvRendering::Resources::Model * p_value)
 {
 	SerializeString(p_doc, p_node, p_name.c_str(), p_value ? p_value->path : "?");
@@ -308,6 +314,14 @@ void OvCore::Helpers::Serializer::DeserializeColor(tinyxml2::XMLDocument & p_doc
 		if (auto element = node->FirstChildElement("q"); element)
 			element->QueryFloatText(&p_out.a);
 	}
+}
+
+void OvCore::Helpers::Serializer::DeserializeSprite(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node, const std::string& p_name, OvRendering::Resources::Sprite*& p_out)
+{
+	if (std::string path = DeserializeString(p_doc, p_node, p_name.c_str()); path != "?" && path != "")
+		p_out = OvCore::Global::ServiceLocator::Get<OvCore::ResourceManagement::SpriteManager>().GetResource(path);
+	else
+		p_out = nullptr;
 }
 
 void OvCore::Helpers::Serializer::DeserializeModel(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode * p_node, const std::string & p_name, OvRendering::Resources::Model *& p_out)

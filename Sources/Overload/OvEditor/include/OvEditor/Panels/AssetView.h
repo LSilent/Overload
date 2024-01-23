@@ -20,7 +20,7 @@ namespace OvEditor::Panels
 	class AssetView : public OvEditor::Panels::AViewControllable
 	{
 	public:
-		using ViewableResource = std::variant<OvRendering::Resources::Model*, OvRendering::Resources::Texture*, OvCore::Resources::Material*>;
+		using ViewableResource = std::variant<OvRendering::Resources::Sprite* , OvRendering::Resources::Model*, OvRendering::Resources::Texture*, OvCore::Resources::Material*>;
 
 		/**
 		* Constructor

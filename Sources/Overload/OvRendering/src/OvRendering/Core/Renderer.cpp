@@ -236,6 +236,40 @@ void OvRendering::Core::Renderer::Draw(Resources::IMesh& p_mesh, Settings::EPrim
 
 std::vector<std::reference_wrapper<OvRendering::Resources::Mesh>> OvRendering::Core::Renderer::GetMeshesInFrustum
 (
+	const OvRendering::Resources::Sprite& p_sprite,
+	const OvRendering::Geometry::BoundingSphere& p_spriteBoundingSphere,
+	const OvMaths::FTransform& p_spriteTransform,
+	const OvRendering::Data::Frustum& p_frustum,
+	OvRendering::Settings::ECullingOptions p_cullingOptions
+)
+{
+	const bool frustumPerSprite = OvRendering::Settings::IsFlagSet(Settings::ECullingOptions::FRUSTUM_PER_MODEL, p_cullingOptions);
+
+	if (!frustumPerSprite || p_frustum.BoundingSphereInFrustum(p_spriteBoundingSphere, p_spriteTransform))
+	{
+		std::vector<std::reference_wrapper<OvRendering::Resources::Mesh>> result;
+
+		const bool frustumPerMesh = OvRendering::Settings::IsFlagSet(Settings::ECullingOptions::FRUSTUM_PER_MESH, p_cullingOptions);
+
+		const auto& meshes = p_sprite.GetMeshes();
+
+		for (auto mesh : meshes)
+		{
+			// Do not check if the mesh is in frustum if the model has only one mesh, because model and mesh bounding sphere are equals
+			if (meshes.size() == 1 || !frustumPerMesh || p_frustum.BoundingSphereInFrustum(mesh->GetBoundingSphere(), p_spriteTransform))
+			{
+				result.emplace_back(*mesh);
+			}
+		}
+
+		return result;
+	}
+
+	return {};
+}
+
+std::vector<std::reference_wrapper<OvRendering::Resources::Mesh>> OvRendering::Core::Renderer::GetMeshesInFrustum
+(
 	const OvRendering::Resources::Model& p_model,
 	const OvRendering::Geometry::BoundingSphere& p_modelBoundingSphere,
 	const OvMaths::FTransform& p_modelTransform,

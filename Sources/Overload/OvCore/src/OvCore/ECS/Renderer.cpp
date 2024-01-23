@@ -175,6 +175,73 @@ std::pair<OvCore::ECS::Renderer::OpaqueDrawables, OvCore::ECS::Renderer::Transpa
 	OvCore::ECS::Renderer::OpaqueDrawables opaqueDrawables;
 	OvCore::ECS::Renderer::TransparentDrawables transparentDrawables;
 
+	for (CSpriteRenderer* spriteRenderer : p_scene.GetFastAccessComponents().spriteRenderers)
+	{
+		auto& owner = spriteRenderer->owner;
+
+		if (owner.IsActive())
+		{
+			if (auto sprite = spriteRenderer->GetSprite())
+			{
+				if (auto materialRenderer = spriteRenderer->owner.GetComponent<CMaterialRenderer>())
+				{
+					auto& transform = owner.transform.GetFTransform();
+
+					OvRendering::Settings::ECullingOptions cullingOptions = OvRendering::Settings::ECullingOptions::NONE;
+
+					if (spriteRenderer->GetFrustumBehaviour() != CSpriteRenderer::EFrustumBehaviour::DISABLED)
+					{
+						cullingOptions |= OvRendering::Settings::ECullingOptions::FRUSTUM_PER_MODEL;
+					}
+
+					if (spriteRenderer->GetFrustumBehaviour() == CSpriteRenderer::EFrustumBehaviour::CULL_MESHES)
+					{
+						cullingOptions |= OvRendering::Settings::ECullingOptions::FRUSTUM_PER_MESH;
+					}
+
+					const auto& spriteBoundingSphere = spriteRenderer->GetFrustumBehaviour() == CSpriteRenderer::EFrustumBehaviour::CULL_CUSTOM ? spriteRenderer->GetCustomBoundingSphere() : sprite->GetBoundingSphere();
+
+					std::vector<std::reference_wrapper<OvRendering::Resources::Mesh>> meshes;
+
+					{
+						PROFILER_SPY("Frustum Culling");
+						meshes = GetMeshesInFrustum(*sprite, spriteBoundingSphere, transform, p_frustum, cullingOptions);
+					}
+
+					if (!meshes.empty())
+					{
+						float distanceToActor = OvMaths::FVector3::Distance(transform.GetWorldPosition(), p_cameraPosition);
+						const OvCore::ECS::Components::CMaterialRenderer::MaterialList& materials = materialRenderer->GetMaterials();
+
+						for (const auto& mesh : meshes)
+						{
+							OvCore::Resources::Material* material = nullptr;
+
+							if (mesh.get().GetMaterialIndex() < MAX_MATERIAL_COUNT)
+							{
+								material = materials.at(mesh.get().GetMaterialIndex());
+								if (!material || !material->GetShader())
+									material = p_defaultMaterial;
+							}
+
+							if (material)
+							{
+								material->Set("u_DiffuseMap", sprite->GetTexture());
+
+								OvCore::ECS::Renderer::Drawable element = { transform.GetWorldMatrix(), &mesh.get(), material, materialRenderer->GetUserMatrix() };
+
+								if (material->IsBlendable())
+									transparentDrawables.emplace(distanceToActor, element);
+								else
+									opaqueDrawables.emplace(distanceToActor, element);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for (CModelRenderer* modelRenderer : p_scene.GetFastAccessComponents().modelRenderers)
 	{
 		auto& owner = modelRenderer->owner;
@@ -252,6 +319,48 @@ std::pair<OvCore::ECS::Renderer::OpaqueDrawables, OvCore::ECS::Renderer::Transpa
 {
 	OvCore::ECS::Renderer::OpaqueDrawables opaqueDrawables;
 	OvCore::ECS::Renderer::TransparentDrawables transparentDrawables;
+
+	for (OvCore::ECS::Components::CSpriteRenderer* spriteRenderer : p_scene.GetFastAccessComponents().spriteRenderers)
+	{
+		if (spriteRenderer->owner.IsActive())
+		{
+			if (auto sprite = spriteRenderer->GetSprite())
+			{
+				float distanceToActor = OvMaths::FVector3::Distance(spriteRenderer->owner.transform.GetWorldPosition(), p_cameraPosition);
+
+				if (auto materialRenderer = spriteRenderer->owner.GetComponent<OvCore::ECS::Components::CMaterialRenderer>())
+				{
+					const auto& transform = spriteRenderer->owner.transform.GetFTransform();
+
+					const OvCore::ECS::Components::CMaterialRenderer::MaterialList& materials = materialRenderer->GetMaterials();
+
+					for (auto mesh : sprite->GetMeshes())
+					{
+						OvCore::Resources::Material* material = nullptr;
+
+						if (mesh->GetMaterialIndex() < MAX_MATERIAL_COUNT)
+						{
+							material = materials.at(mesh->GetMaterialIndex());
+							if (!material || !material->GetShader())
+								material = p_defaultMaterial;
+						}
+
+						if (material)
+						{
+							material->Set("u_DiffuseMap", sprite->GetTexture());
+
+							OvCore::ECS::Renderer::Drawable element = { transform.GetWorldMatrix(), mesh, material, materialRenderer->GetUserMatrix() };
+
+							if (material->IsBlendable())
+								transparentDrawables.emplace(distanceToActor, element);
+							else
+								opaqueDrawables.emplace(distanceToActor, element);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	for (OvCore::ECS::Components::CModelRenderer* modelRenderer : p_scene.GetFastAccessComponents().modelRenderers)
 	{

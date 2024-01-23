@@ -13,6 +13,7 @@
 #include <OvCore/ECS/Components/CPhysicalBox.h>
 #include <OvCore/ECS/Components/CPhysicalSphere.h>
 #include <OvCore/ECS/Components/CPhysicalCapsule.h>
+#include <OvCore/ECS/Components/CSpriteRenderer.h>
 #include <OvCore/ECS/Components/CModelRenderer.h>
 #include <OvCore/ECS/Components/CMaterialRenderer.h>
 #include <OvCore/ECS/Components/CAudioSource.h>
@@ -532,6 +533,27 @@ OvCore::ECS::Actor & OvEditor::Core::EditorActions::CreateActorWithModel(const s
 	return instance;
 }
 
+OvCore::ECS::Actor& OvEditor::Core::EditorActions::CreateActorWithSprite(const std::string& p_path, bool p_focusOnCreation, OvCore::ECS::Actor* p_parent, const std::string& p_name)
+{
+	auto& instance = CreateEmptyActor(false, p_parent, p_name);
+
+	auto& spriteRenderer = instance.AddComponent<OvCore::ECS::Components::CSpriteRenderer>();
+
+	const auto sprite = m_context.spriteManager[p_path];
+	if (sprite)
+		spriteRenderer.SetSprite(sprite);
+
+	auto& materialRenderer = instance.AddComponent<OvCore::ECS::Components::CMaterialRenderer>();
+	const auto material = m_context.materialManager.CreateResource(":Materials\\Unlit.ovmat");
+	if (material)
+		materialRenderer.FillWithMaterial(*material);
+
+	if (p_focusOnCreation)
+		SelectActor(instance);
+
+	return instance;
+}
+
 bool OvEditor::Core::EditorActions::DestroyActor(OvCore::ECS::Actor & p_actor)
 {
 	p_actor.MarkAsDestroy();
@@ -843,6 +865,11 @@ void OvEditor::Core::EditorActions::PropagateFileRename(std::string p_previousNa
 						if (value.has_value() && value.type() == typeid(OvRendering::Resources::Texture*))
 							if (std::any_cast<OvRendering::Resources::Texture*>(value) == texture)
 								value = static_cast<OvRendering::Resources::Texture*>(nullptr);
+
+			if (auto currentScene = m_context.sceneManager.GetCurrentScene())
+				for (auto actor : currentScene->GetActors())
+					if (auto spriteRenderer = actor->GetComponent<OvCore::ECS::Components::CSpriteRenderer>(); spriteRenderer && spriteRenderer->GetSprite()->GetTexture() == texture)
+						spriteRenderer->SetSprite(nullptr);
 
 			auto& assetView = EDITOR_PANEL(Panels::AssetView, "Asset View");
 			auto assetViewRes = assetView.GetResource();

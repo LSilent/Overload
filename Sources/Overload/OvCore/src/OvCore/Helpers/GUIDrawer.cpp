@@ -21,6 +21,7 @@
 #include <OvUI/Plugins/DDTarget.h>
 
 #include <OvCore/Global/ServiceLocator.h>
+#include <OvCore/ResourceManagement/SpriteManager.h>
 #include <OvCore/ResourceManagement/ModelManager.h>
 #include <OvCore/ResourceManagement/TextureManager.h>
 #include <OvCore/ResourceManagement/ShaderManager.h>
@@ -135,6 +136,44 @@ OvUI::Widgets::Texts::Text& OvCore::Helpers::GUIDrawer::DrawMesh(OvUI::Internal:
 		if (p_updateNotifier)
 			p_updateNotifier->Invoke();
 	};
+
+	return widget;
+}
+
+OvUI::Widgets::Texts::Text& OvCore::Helpers::GUIDrawer::DrawSprite(OvUI::Internal::WidgetContainer& p_root, const std::string& p_name, OvRendering::Resources::Sprite*& p_data, OvTools::Eventing::Event<>* p_updateNotifier)
+{
+	CreateTitle(p_root, p_name);
+
+	std::string displayedText = (p_data ? p_data->path : std::string("Empty"));
+	auto& rightSide = p_root.CreateWidget<OvUI::Widgets::Layout::Group>();
+
+	auto& widget = rightSide.CreateWidget<OvUI::Widgets::Texts::Text>(displayedText);
+
+	widget.AddPlugin<OvUI::Plugins::DDTarget<std::pair<std::string, OvUI::Widgets::Layout::Group*>>>("File").DataReceivedEvent += [&widget, &p_data, p_updateNotifier](auto p_receivedData)
+		{
+			if (OvTools::Utils::PathParser::GetFileType(p_receivedData.first) == OvTools::Utils::PathParser::EFileType::TEXTURE)
+			{
+				if (auto resource = OVSERVICE(OvCore::ResourceManagement::SpriteManager).GetResource(p_receivedData.first); resource)
+				{
+					p_data = resource;
+					widget.content = p_receivedData.first;
+					if (p_updateNotifier)
+						p_updateNotifier->Invoke();
+				}
+			}
+		};
+
+	widget.lineBreak = false;
+
+	auto& resetButton = rightSide.CreateWidget<OvUI::Widgets::Buttons::ButtonSmall>("Clear");
+	resetButton.idleBackgroundColor = ClearButtonColor;
+	resetButton.ClickedEvent += [&widget, &p_data, p_updateNotifier]
+		{
+			p_data = nullptr;
+			widget.content = "Empty";
+			if (p_updateNotifier)
+				p_updateNotifier->Invoke();
+		};
 
 	return widget;
 }

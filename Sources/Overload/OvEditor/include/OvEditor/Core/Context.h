@@ -21,6 +21,7 @@
 #include <OvWindowing/Window.h>
 
 #include <OvCore/ECS/Renderer.h>
+#include <OvCore/ResourceManagement/SpriteManager.h>
 #include <OvCore/ResourceManagement/ModelManager.h>
 #include <OvCore/ResourceManagement/TextureManager.h>
 #include <OvCore/ResourceManagement/ShaderManager.h>
@@ -100,6 +101,7 @@ namespace OvEditor::Core
 		
 		OvCore::SceneSystem::SceneManager sceneManager;
 
+		OvCore::ResourceManagement::SpriteManager	spriteManager;
 		OvCore::ResourceManagement::ModelManager	modelManager;
 		OvCore::ResourceManagement::TextureManager	textureManager;
 		OvCore::ResourceManagement::ShaderManager	shaderManager;

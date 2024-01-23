@@ -182,6 +182,9 @@ std::vector<std::reference_wrapper<OvCore::ECS::Actor>> OvCore::SceneSystem::Sce
 
 void OvCore::SceneSystem::Scene::OnComponentAdded(ECS::Components::AComponent& p_compononent)
 {
+	if (auto result = dynamic_cast<ECS::Components::CSpriteRenderer*>(&p_compononent))
+		m_fastAccessComponents.spriteRenderers.push_back(result);
+
 	if (auto result = dynamic_cast<ECS::Components::CModelRenderer*>(&p_compononent))
 		m_fastAccessComponents.modelRenderers.push_back(result);
 
@@ -194,6 +197,9 @@ void OvCore::SceneSystem::Scene::OnComponentAdded(ECS::Components::AComponent& p
 
 void OvCore::SceneSystem::Scene::OnComponentRemoved(ECS::Components::AComponent& p_compononent)
 {
+	if (auto result = dynamic_cast<ECS::Components::CSpriteRenderer*>(&p_compononent))
+		m_fastAccessComponents.spriteRenderers.erase(std::remove(m_fastAccessComponents.spriteRenderers.begin(), m_fastAccessComponents.spriteRenderers.end(), result), m_fastAccessComponents.spriteRenderers.end());
+
 	if (auto result = dynamic_cast<ECS::Components::CModelRenderer*>(&p_compononent))
 		m_fastAccessComponents.modelRenderers.erase(std::remove(m_fastAccessComponents.modelRenderers.begin(), m_fastAccessComponents.modelRenderers.end(), result), m_fastAccessComponents.modelRenderers.end());
 

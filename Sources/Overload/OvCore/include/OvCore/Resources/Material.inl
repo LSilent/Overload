@@ -30,8 +30,8 @@ namespace OvCore::Resources
 	inline const T& Material::Get(const std::string p_key)
 	{
 		if (m_uniformsData.find(p_key) != m_uniformsData.end())
-			return T();
-		else
 			return std::any_cast<T>(m_uniformsData.at(p_key));
+		else
+			return T();
 	}
 }

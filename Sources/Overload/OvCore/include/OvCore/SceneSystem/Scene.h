@@ -10,6 +10,7 @@
 #include "OvCore/ECS/Actor.h"
 #include "OvCore/API/ISerializable.h"
 
+#include "OvCore/ECS/Components/CSpriteRenderer.h"
 #include "OvCore/ECS/Components/CModelRenderer.h"
 #include "OvCore/ECS/Components/CCamera.h"
 #include "OvCore/ECS/Components/CLight.h"
@@ -28,6 +29,7 @@ namespace OvCore::SceneSystem
 		*/
 		struct FastAccessComponents
 		{
+			std::vector<ECS::Components::CSpriteRenderer*>	spriteRenderers;
 			std::vector<ECS::Components::CModelRenderer*>	modelRenderers;
 			std::vector<ECS::Components::CCamera*>			cameras;
 			std::vector<ECS::Components::CLight*>			lights;

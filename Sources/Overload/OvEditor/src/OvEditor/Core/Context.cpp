@@ -31,6 +31,7 @@ OvEditor::Core::Context::Context(const std::string& p_projectPath, const std::st
 		projectSettings.Rewrite();
 	}
 
+	SpriteManager::ProvideAssetPaths(projectAssetsPath, engineAssetsPath);
 	ModelManager::ProvideAssetPaths(projectAssetsPath, engineAssetsPath);
 	TextureManager::ProvideAssetPaths(projectAssetsPath, engineAssetsPath);
 	ShaderManager::ProvideAssetPaths(projectAssetsPath, engineAssetsPath);
@@ -93,6 +94,7 @@ OvEditor::Core::Context::Context(const std::string& p_projectPath, const std::st
 
 	/* Service Locator providing */
 	ServiceLocator::Provide<OvPhysics::Core::PhysicsEngine>(*physicsEngine);
+	ServiceLocator::Provide<SpriteManager>(spriteManager);
 	ServiceLocator::Provide<ModelManager>(modelManager);
 	ServiceLocator::Provide<TextureManager>(textureManager);
 	ServiceLocator::Provide<ShaderManager>(shaderManager);
@@ -147,6 +149,7 @@ OvEditor::Core::Context::Context(const std::string& p_projectPath, const std::st
 
 OvEditor::Core::Context::~Context()
 {
+	spriteManager.UnloadResources();
 	modelManager.UnloadResources();
 	textureManager.UnloadResources();
 	shaderManager.UnloadResources();
